@@ -14,7 +14,7 @@ class Manager:  # 사용자, 채팅방 관리
 
     def addUser(self, username, conn, addr):  # 사용자 등록
         if username in self.users.keys() or len(username) > 20:  # 아이디가 이미 등록된 경우
-            conn.send('이미 등록된 사용자입니다.\n'.encode())
+            conn.send('이미 등록된 사용자입니다.'.encode())
             return None
         lock.acquire()
         self.users[username] = [conn, addr, 'lobby']
@@ -42,7 +42,7 @@ class Manager:  # 사용자, 채팅방 관리
     def makeRoom(self, username, roomname):  # 새로운 대화방 생성
         conn, addr, preroom = self.users[username]
         if roomname in self.rooms.keys():
-            conn.send('이미 존재하는 방입니다.\n'.encode())
+            conn.send('이미 존재하는 방입니다.'.encode())
             return
 
         self.changeRoom(username, 'lobby')
@@ -63,7 +63,7 @@ class Manager:  # 사용자, 채팅방 관리
             return
 
         if room not in self.rooms.keys():
-            conn.send('존재하지 않는 방입니다.\n'.encode())
+            conn.send('존재하지 않는 방입니다.'.encode())
             return
 
         if preroom != 'lobby':
@@ -119,18 +119,17 @@ class Manager:  # 사용자, 채팅방 관리
                     return
 
                 if cmd[0] == '/status':
-                    conn.send(f'현재 [{room}]방에 있습니다.\n'.encode())
                     member = ''
                     for mem in self.rooms[room]:
                         member += mem + ' '
-                    conn.send(f'참여자 : {member}\n'.encode())
+                    conn.send(f'현재 [{room}]방에 있습니다.\n참여자 : {member}'.encode())
                     return
 
                 else:
-                    conn.send('명령어를 다시 확인해 주세요.\n/help를 입력하면 명령어 사용법을 볼 수 있습니다.\n'.encode())
+                    conn.send('명령어를 다시 확인해 주세요.\n/help를 입력하면 명령어 사용법을 볼 수 있습니다.'.encode())
                     return
             except:  # 잘못된 명령어
-                conn.send('명령어를 다시 확인해 주세요.\n/help를 입력하면 명령어 사용법을 볼 수 있습니다.\n'.encode())
+                conn.send('명령어를 다시 확인해 주세요.\n/help를 입력하면 명령어 사용법을 볼 수 있습니다.'.encode())
                 return
 
 
