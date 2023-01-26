@@ -1,7 +1,7 @@
 import socket
 from threading import Thread
 
-HOST = 'localhost'
+HOST = '193.123.255.112'
 PORT = 8080
 
 
@@ -42,5 +42,5 @@ def runChat():
 
             sock.send(msg.encode())
 
-
-runChat()
+if __name__ == '__main__':
+    runChat()

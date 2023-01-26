@@ -13,10 +13,11 @@ class Manager:  # 사용자, 채팅방 관리
         self.rooms = {'lobby': set()}  # 방의 정보를 담을 딕셔너리 {방 ID:set(참가자)}
 
     def addUser(self, username, conn, addr):  # 사용자 등록
-        if username in self.users or len(username) > 20:  # 아이디가 이미 등록된 경우
+        if username in self.users.keys() or len(username) > 20:  # 아이디가 이미 등록된 경우
             conn.send('이미 등록된 사용자입니다.\n'.encode())
             return None
         lock.acquire()
+        print(111)
         self.users[username] = [conn, addr, 'lobby']
         self.rooms['lobby'].add(username)
         lock.release()
@@ -134,10 +135,13 @@ class Manager:  # 사용자, 채팅방 관리
             return
         for user in self.rooms[room]:  # 사용자가 속해있는 방 사용자에게만 메세지 전송
             conn, _, _ = self.users[user]
-            if log:
-                conn.send(f'{msg}'.encode())
-            else:
-                conn.send(f'{username} : {msg}'.encode())
+            try:  # 클라이언트가 강제 종료 해버리는 경우 error 방지
+                if log:
+                    conn.send(f'{msg}'.encode())
+                else:
+                    conn.send(f'{username} : {msg}'.encode())
+            except:
+                pass
         if log:
             print(f'{msg}')
         else:
@@ -157,6 +161,7 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
                 status = self.manager.messageHandler(username, msg.decode())
                 if status == -1:
                     self.request.close()
+                    self.manager.removeUser(username)
                     break
 
                 msg = self.request.recv(1024)
