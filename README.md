@@ -4,7 +4,7 @@
 
 ### 사용 방법
 - git clone
-- clone을 받은 위치에서 cmd 창으로 python3 client.py 실행
+- clone을 받은 위치에서 cmd 창으로 python client.py 실행
 - id를 입력하고 접속한 다음 /help를 이용하여 사용법을 확인
 
 
