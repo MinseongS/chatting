@@ -17,7 +17,6 @@ class Manager:  # 사용자, 채팅방 관리
             conn.send('이미 등록된 사용자입니다.\n'.encode())
             return None
         lock.acquire()
-        print(111)
         self.users[username] = [conn, addr, 'lobby']
         self.rooms['lobby'].add(username)
         lock.release()
