@@ -20,7 +20,7 @@ class Manager:  # 사용자, 채팅방 관리
         self.users[username] = [conn, addr, 'lobby']
         self.rooms['lobby'].add(username)
         lock.release()
-        self.sendMessageTo(f'[{username}]님이 [lobby]에 입장했습니다.', username, log=True)
+        self.sendMessageTo(f'[{username}]님이 [lobby]에 입장했습니다.\n', username, log=True)
         print(f'--- 전체 대화 참여자 수 [{len(self.users)}]')
         return username
 
@@ -29,7 +29,7 @@ class Manager:  # 사용자, 채팅방 관리
             return
 
         self.changeRoom(username, 'lobby')
-        self.sendMessageTo(f'[{username}]님이 퇴장했습니다.', username, log=True)
+        self.sendMessageTo(f'[{username}]님이 퇴장했습니다.\n', username, log=True)
 
         lock.acquire()
         self.rooms['lobby'].remove(username)
@@ -46,7 +46,7 @@ class Manager:  # 사용자, 채팅방 관리
             return
 
         self.changeRoom(username, 'lobby')
-        self.sendMessageTo(f'[{roomname}]방이 만들어졌습니다.', username, log=True)
+        self.sendMessageTo(f'[{roomname}]방이 만들어졌습니다.\n', username, log=True)
 
         lock.acquire()
         self.rooms[roomname] = set([username])
@@ -66,13 +66,16 @@ class Manager:  # 사용자, 채팅방 관리
             conn.send('존재하지 않는 방입니다.\n'.encode())
             return
 
+        if preroom != 'lobby':
+            self.sendMessageTo(f'[{username}]님이 [{preroom}]을 떠났습니다.\n', username, log=True)
+
         lock.acquire()
         self.users[username][2] = room
         self.rooms[preroom].remove(username)
         self.rooms[room].add(username)
         if len(self.rooms[preroom]) == 0 and preroom != 'lobby': # 방에 남은 사람이 없는 경우 방 삭제
             del self.rooms[preroom]
-            self.sendMessageTo(f'[{preroom}]방이 삭제됐습니다.', username, log=True)
+            self.sendMessageTo(f'[{preroom}]방이 삭제됐습니다.\n', username, log=True)
         lock.release()
 
         self.sendMessageTo(f'[{username}]님이 [{room}]에 입장했습니다.\n', username, log=True)
@@ -116,14 +119,18 @@ class Manager:  # 사용자, 채팅방 관리
                     return
 
                 if cmd[0] == '/status':
-                    conn.send(f'현재 [{room}]방에 있습니다.'.encode())
+                    conn.send(f'현재 [{room}]방에 있습니다.\n'.encode())
+                    member = ''
+                    for mem in self.rooms[room]:
+                        member += mem + ' '
+                    conn.send(f'참여자 : {member}\n'.encode())
                     return
 
                 else:
-                    conn.send('명령어를 다시 확인해 주세요.\n/help를 입력하면 명령어 사용법을 볼 수 있습니다.'.encode())
+                    conn.send('명령어를 다시 확인해 주세요.\n/help를 입력하면 명령어 사용법을 볼 수 있습니다.\n'.encode())
                     return
             except:  # 잘못된 명령어
-                conn.send('명령어를 다시 확인해 주세요.\n/help를 입력하면 명령어 사용법을 볼 수 있습니다.'.encode())
+                conn.send('명령어를 다시 확인해 주세요.\n/help를 입력하면 명령어 사용법을 볼 수 있습니다.\n'.encode())
                 return
 
 
@@ -142,9 +149,9 @@ class Manager:  # 사용자, 채팅방 관리
             except:
                 pass
         if log:
-            print(f'{msg}')
+            print(f'{msg}', end='')
         else:
-            print(f'[{room}] {username} : {msg}')
+            print(f'[{room}] {username} : {msg}', end='')
 
 
 class MyTcpHandler(socketserver.BaseRequestHandler):
