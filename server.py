@@ -13,7 +13,7 @@ class Manager:  # 사용자, 채팅방 관리
         self.rooms = {'lobby': set()}  # 방의 정보를 담을 딕셔너리 {방 ID:set(참가자)}
 
     def addUser(self, username, conn, addr):  # 사용자 등록
-        if username in self.users:  # 아이디가 이미 등록된 경우
+        if username in self.users or len(username) > 20:  # 아이디가 이미 등록된 경우
             conn.send('이미 등록된 사용자입니다.\n'.encode())
             return None
         lock.acquire()
@@ -29,13 +29,14 @@ class Manager:  # 사용자, 채팅방 관리
             return
 
         self.changeRoom(username, 'lobby')
+        self.sendMessageTo(f'[{username}]님이 퇴장했습니다.', username, log=True)
 
         lock.acquire()
         self.rooms['lobby'].remove(username)
         del self.users[username]
         lock.release()
 
-        self.sendMessageTo(f'[{username}]님이 퇴장했습니다.', username, log=True)
+
         print(f'--- 대화 참여자 수 [{len(self.users)}]')
 
     def makeRoom(self, username, roomname):  # 새로운 대화방 생성
